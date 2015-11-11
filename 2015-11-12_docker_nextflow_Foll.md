@@ -57,9 +57,66 @@ output folder (--out_folder)                                    : BAM/
 
 ## Docker
 
-Install docker as explained [here](https://docs.docker.com/engine/installation/).
+Installing docker is very system specific (but quite easy in most cases), follow  [docker documentation](https://docs.docker.com/installation/). Also follow the optional configuration step called `Create a Docker group` in their documentation.
 
+Let's first download an image of Ubuntu latest version (from https://hub.docker.com):
+```bash
+$ docker run -it ubuntu
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+2332d8973c93: Pull complete 
+ea358092da77: Pull complete 
+a467a7c6794f: Pull complete 
+ca4d7b1b9a51: Pull complete 
+library/ubuntu:latest: The image you are pulling has been verified. Important: image verification is a tech preview feature and should not be relied on to provide security.
+Digest: sha256:f91f9bab1fe6d0db0bfecc751d127a29d36e85483b1c68e69a246cf1df9b4251
+Status: Downloaded newer image for ubuntu:latest
+root@7c94b70daa8a:/# exit
+```
 
+Let's look at the images:
+```bash
+$ docker images
+REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+ubuntu                    latest              ca4d7b1b9a51        39 hours ago        187.9 MB
+```
+
+Be careful, our container (the instance of the image) is still here:
+```bash
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+7c94b70daa8a        ubuntu              "/bin/bash"         2 minutes ago       Exited (0) 2 minutes ago                       jovial_hypatia
+```
+
+You can kill it with `docker rm 7c94b70daa8a`. You can also kill all running containers using `docker rm $(docker ps -a -q)`. Similarly you can delete our ubuntu image using `docker rmi ca4d7b1b9a51` and all images using `docker rmi $(docker images -q)`.
+
+Now let's install something ([samtools](http://www.htslib.org)) in our container:
+```bash
+$ docker run -it ubuntu
+$ apt-get update
+$ apt-get install samtools
+$ samtools
+
+Program: samtools (Tools for alignments in the SAM format)
+Version: 0.1.19-96b5f2294a
+
+Usage:   samtools <command> [options]
+$ exit
+```
+
+Be careful, now if you again type `docker run -it ubuntu`, samtools won't be here: the image remained the same when we installed samtools, only the container changed, but now you stopped it when you exited. You can start it again:
+```bash
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                          PORTS               NAMES
+e6f92d19b512        ubuntu              "/bin/bash"         3 minutes ago       Exited (1) About a minute ago                       mad_goodall
+$ docker start -ia e6f92d19b512
+$ samtools
+
+Program: samtools (Tools for alignments in the SAM format)
+Version: 0.1.19-96b5f2294a
+
+Usage:   samtools <command> [options]
+```
 
 ```bash
 $ docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash iarcbioinfo/needlestack -c "samtools view -H NA11930.bam | head"
@@ -79,4 +136,26 @@ $ samtools_docker () { docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bi
 $ samtools_docker "view -H NA11930.bam | head"
 @HD	VN:1.0	SO:coordinate
 @SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
+```
+
+```bash
+NGS_docker "sort -k1,1 -k2,2n TP53_exon2_11.bed | bedtools merge -i stdin"
+```
+
+### Docker tips
+Delete all containers:
+```bash
+docker rm $(docker ps -a -q)
+```
+
+Delete all images
+```bash
+docker rmi $(docker images -q)
+```
+
+## Nextflow
+
+Install [nextflow](http://www.nextflow.io/) (you will need [java](https://java.com/download/) JRE if you don't already have it):
+```bash
+$ curl -fsSL get.nextflow.io | bash
 ```
