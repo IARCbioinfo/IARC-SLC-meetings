@@ -144,41 +144,34 @@ $ docker ps -a
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 ```
 
-Now the final problem is that the docker container is disconnected from our machine, so we have no way of accessing any data...
-
+Now the final problem is that the docker container is disconnected from our machine, so we have no way of accessing any data... We can "mount" a directory from our machine in the container using `-v` option and also automatically move to this directory when the container starts. For example:
 ```bash
-$ docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash iarcbioinfo/needlestack -c "samtools view -H NA11930.bam | head"
+$ docker run -it --rm -v /Users/follm/DEMO_IARC_SLC/NGS_data_test/1000G_CEU_TP53/:/data -w /data samtools_img
+$ samtools view -H BAM/NA11830.bam | head
+@HD	VN:1.0	SO:coordinate
+@SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
+$ exit
+```
+
+Note `-v` option only accepts absolute path, so a good trick is to systematically mount your current working directory using `$PWD` into the same target directory. Note that you can have multiple `-v` options when you run a container. So it makes something like this:
+```bash
+$ docker run -it --rm -v $PWD:$PWD -w $PWD samtools_img
+$ samtools view -H BAM/NA11830.bam | head
+```
+
+So far we always run interactively docker containers, but you can actually run it automatically. Still the same example becomes:
+```bash
+$ docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash samtools_img -c "samtools view -H BAM/NA11830.bam | head"
 @HD	VN:1.0	SO:coordinate
 @SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
 ```
+And voilà! One more trick tu make the command simpler to type by creating a bash function:
 
 ```bash
-$ NGS_docker () {  docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash iarcbioinfo/needlestack -c "$@"; }
-$ NGS_docker "samtools view -H NA11930.bam | head"
+$ samtools_docker () { docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash samtools_img -c "samtools $@"; }
+$ samtools_docker "view -H BAM/NA11830.bam | head"
 @HD	VN:1.0	SO:coordinate
 @SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
-```
-
-```bash
-$ samtools_docker () { docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash iarcbioinfo/needlestack -c "samtools $@"; }
-$ samtools_docker "view -H NA11930.bam | head"
-@HD	VN:1.0	SO:coordinate
-@SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
-```
-
-```bash
-NGS_docker "sort -k1,1 -k2,2n TP53_exon2_11.bed | bedtools merge -i stdin"
-```
-
-### Docker tips
-Delete all containers:
-```bash
-docker rm $(docker ps -a -q)
-```
-
-Delete all images
-```bash
-docker rmi $(docker images -q)
 ```
 
 ## Nextflow
