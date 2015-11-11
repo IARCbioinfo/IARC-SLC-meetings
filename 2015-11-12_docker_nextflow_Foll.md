@@ -116,7 +116,35 @@ Program: samtools (Tools for alignments in the SAM format)
 Version: 0.1.19-96b5f2294a
 
 Usage:   samtools <command> [options]
+$ exit
 ```
+
+Now if we want to keep our container as an image (to be able to re-use it), you can do it simply with:
+```bash
+$ docker commit -m "added samtools" e6f92d19b512 samtools_img
+e664fa7478a7a74addbef19379412a901bc05c8164d21c2de58e62a32e0117c3
+$ docker images
+REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+samtools_img              latest              e664fa7478a7        4 seconds ago       211.5 MB
+ubuntu                    latest              ca4d7b1b9a51        40 hours ago        187.9 MB
+```
+
+Now that we saved it as an image, a good practice is to delete containers when we are done using them. You can simply do this by adding `--rm` when you create a container:
+```bash
+$ docker rm $(docker ps -a -q)
+$ docker run --rm -it samtools_img
+$ samtools
+
+Program: samtools (Tools for alignments in the SAM format)
+Version: 0.1.19-96b5f2294a
+
+Usage:   samtools <command> [options]
+$ exit
+$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+Now the final problem is that the docker container is disconnected from our machine, so we have no way of accessing any data...
 
 ```bash
 $ docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash iarcbioinfo/needlestack -c "samtools view -H NA11930.bam | head"
