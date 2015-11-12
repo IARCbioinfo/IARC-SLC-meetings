@@ -193,3 +193,13 @@ Install [nextflow](http://www.nextflow.io/) (you will need [java](https://java.c
 ```bash
 $ curl -fsSL get.nextflow.io | bash
 ```
+
+A good practice is to keep (and publish) the `.nextflow.log` file create during the pipeline process, as it contains useful information for reproducibility (full command line, software versions etc.). You should also add the option `-with-trace` in the `nextflow run` command line that will create an additional `trace.csv` file containing even more information to keep for records. The option `-with-timeline` also creates a nice processes execution timeline file (a web page). You can easily create aliases to avoid having to always type long command lines. For example with `needlestack`:
+```bash
+alias needlestack='nextflow run iarcbioinfo/needlestack -with-docker iarcbioinfo/needlestack -latest -with-trace --with-timeline'
+```
+
+It will allow you to do this:
+```bash
+needlestack --bed TP53_all.bed --bam_folder BAM/ --fasta_ref 17.fasta.gz
+```
