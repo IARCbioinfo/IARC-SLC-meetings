@@ -1,4 +1,4 @@
-# IARC Synergie Lyon Cancer bioinformatics development meetings 
+# IARC - Synergie Lyon Cancer joint bioinformatics development meetings 
 
 ## 2015
 
