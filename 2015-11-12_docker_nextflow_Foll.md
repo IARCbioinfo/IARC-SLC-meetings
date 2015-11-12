@@ -209,10 +209,10 @@ params.nsplit = 1
 params.out_folder = params.bam_folder
 
 process split_bed {
-       
-     intput:
-     file bed
-        
+	  
+	intput:
+	file bed
+	   
 	output:
 	file '*_regions' into split_bed mode flatten 
 
@@ -223,16 +223,16 @@ process split_bed {
 }
 
 process samtools_mpileup {
-          
-     input:
-     file split_bed
+		
+	input:
+	file split_bed
 	file bam
 	file bai  
 	file fasta_ref
-     
-     output:
-     file pileup
-        
+	
+	output:
+	file pileup
+	   
  	shell:
 	'''
 	samtools mpileup --fasta-ref !{fasta_ref} --region !{split_bed} !{bam} > pileup
@@ -240,13 +240,13 @@ process samtools_mpileup {
 }
 
 process mpileup2table {
-     
-     input:
-     file pileup
-     
-     output:
-     file 'sample*.txt' into table
-        
+	
+	input:
+	file pileup
+	
+	output:
+	file 'sample*.txt' into table
+	   
  	shell:
  	'''
 	pileup2baseindel.pl -i !{pileup}
@@ -254,15 +254,15 @@ process mpileup2table {
 }
 
 process R_regression {
-          
-     input:
-     file table
-     file fasta_ref
-     
-     output:
-     file vcf
-     file '*.pdf' into PDF
-        
+		
+	input:
+	file table
+	file fasta_ref
+	
+	output:
+	file vcf
+	file '*.pdf' into PDF
+	   
  	shell:
  	'''
 	needlestack.r --out_file=vcf --fasta_ref=!{fasta_ref} 
