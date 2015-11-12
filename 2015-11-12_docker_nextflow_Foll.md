@@ -194,6 +194,97 @@ Install [nextflow](http://www.nextflow.io/) (you will need [java](https://java.c
 $ curl -fsSL get.nextflow.io | bash
 ```
 
+This is a non-working simplified version of `needlestack` to understand the logic:
+```java
+#! /usr/bin/env nextflow
+
+bed = file( params.bed )
+fasta_ref = file( params.fasta_ref )
+
+bam = Channel.fromPath( params.bam_folder+'/*.bam' ).toList()   
+bai = Channel.fromPath( params.bam_folder+'/*.bam.bai' ).toList()
+
+params.nsplit = 1
+
+params.out_folder = params.bam_folder
+
+process split_bed {
+       
+     intput:
+     file bed
+        
+	output:
+	file '*_regions' into split_bed mode flatten 
+
+	shell:
+	'''
+	bedtools merge -i !{bed} | bed_large_cut.r !{params.nsplit}
+	'''
+}
+
+process samtools_mpileup {
+          
+     input:
+     file split_bed
+	file bam
+	file bai  
+	file fasta_ref
+     
+     output:
+     file pileup
+        
+ 	shell:
+	'''
+	samtools mpileup --fasta-ref !{fasta_ref} --region !{split_bed} !{bam} > pileup
+	'''
+}
+
+process mpileup2table {
+     
+     input:
+     file pileup
+     
+     output:
+     file 'sample*.txt' into table
+        
+ 	shell:
+ 	'''
+	pileup2baseindel.pl -i !{pileup}
+	'''
+}
+
+process R_regression {
+          
+     input:
+     file table
+     file fasta_ref
+     
+     output:
+     file vcf
+     file '*.pdf' into PDF
+        
+ 	shell:
+ 	'''
+	needlestack.r --out_file=vcf --fasta_ref=!{fasta_ref} 
+	'''
+}
+
+process collect_vcf_result {
+
+	storeDir { params.out_folder }
+
+	input:
+	file '*.vcf' from vcf.toList()
+  
+	output:
+	file 'all_variants.vcf' 
+
+	shell:
+	vcfoverlay *.vcf > all_variants.vcf
+	'''
+}
+```
+
 A good practice is to keep (and publish) the `.nextflow.log` file create during the pipeline process, as it contains useful information for reproducibility (full command line, software versions etc.). You should also add the option `-with-trace` in the `nextflow run` command line that will create an additional `trace.csv` file containing even more information to keep for records. The option `-with-timeline` also creates a nice processes execution timeline file (a web page). You can easily create aliases to avoid having to always type long command lines. For example with `needlestack`:
 ```bash
 alias needlestack='nextflow run iarcbioinfo/needlestack -with-docker iarcbioinfo/needlestack -latest -with-trace --with-timeline'
