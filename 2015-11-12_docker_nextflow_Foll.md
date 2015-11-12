@@ -182,7 +182,10 @@ RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install samtools
 ```
 
-If the file is called Dockerfile you simply need to type: `docker build -t samtools_img2 .` to create an image called `samtools_img2`. The Dockerfile is easier to distribute than the actual image. Note that if you host your Dockerfile on [github](https://github.com), [Docker Hub](https://hub.docker.com) can make automatically build it whenever you modify it.
+If the file is called Dockerfile you simply need to type: `docker build -t samtools_img2 .` to create an image called `samtools_img2`. The Dockerfile is easier to distribute than the actual image. Note that if you host your Dockerfile on [github](https://github.com), [Docker Hub](https://hub.docker.com) can make automatically build it whenever you modify it. You can browse [Docker Hub](https://hub.docker.com) and you will see that you can find three different classes of images:
+- Base images, just containing a given Linux distributio (centos, debian, ubuntu etc.)
+- Images to distribute a specific software ([R](https://hub.docker.com/_/r-base/) for example)
+- Images bundling several software for a given task ([NGSeasy](https://hub.docker.com/r/compbio/ngseasy-base/) for example)
 
 ## Nextflow
 
