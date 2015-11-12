@@ -280,6 +280,7 @@ process collect_vcf_result {
 	file 'all_variants.vcf' 
 
 	shell:
+	'''
 	vcfoverlay *.vcf > all_variants.vcf
 	'''
 }
