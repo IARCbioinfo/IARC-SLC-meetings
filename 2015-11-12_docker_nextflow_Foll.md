@@ -286,6 +286,30 @@ process collect_vcf_result {
 }
 ```
 
+Even for a simple task, why not letting nextflow do the job of writing your bash/bsub/qsub scripts?. For example calling variants on a serie of BAM files in a folder using [freebayes](https://github.com/ekg/freebayes):
+```bash
+#! /usr/bin/env nextflow
+
+bam = Channel.fromPath( params.bam_folder+'/*.bam' ) 
+
+process freebayes {
+
+	storeDir { params.bam_folder+'/VCF' }
+	
+	input:
+	file bam
+	
+	output:
+	file "${out_prefix}.vcf" into vcf
+
+	script:
+	out_prefix = bam.baseName
+	"""
+	freebayes -f '${params.hg19_torrent_ref}' $bam | vcffilter -f "QUAL > 30" > ${out_prefix}.vcf
+	"""
+}
+```
+
 A good practice is to keep (and publish) the `.nextflow.log` file create during the pipeline process, as it contains useful information for reproducibility (full command line, software versions etc.). You should also add the option `-with-trace` in the `nextflow run` command line that will create an additional `trace.csv` file containing even more information to keep for records. The option `-with-timeline` also creates a nice processes execution timeline file (a web page). You can easily create aliases to avoid having to always type long command lines. For example with `needlestack`:
 ```bash
 alias needlestack='nextflow run iarcbioinfo/needlestack -with-docker iarcbioinfo/needlestack -latest -with-trace --with-timeline'
