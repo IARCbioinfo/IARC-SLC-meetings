@@ -166,10 +166,10 @@ $ docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash samtools_img -
 @SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
 ```
 
-One more trick tu make the command simpler to type by creating a bash function:
+One more trick to make the command simpler to type by creating a bash function:
 ```bash
-$ samtools_docker () { docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash samtools_img -c "samtools $@"; }
-$ samtools_docker "view -H BAM/NA11830.bam | head"
+$ samtools_docker () { eval "docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash samtools_img -c \"samtools $@\""; }
+$ samtools_docker view -H BAM/NA11830.bam
 @HD	VN:1.0	SO:coordinate
 @SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
 ```
