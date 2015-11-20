@@ -184,8 +184,13 @@ RUN apt-get update -y && \
 
 If the file is called Dockerfile you simply need to type: `docker build -t samtools_img2 .` to create an image called `samtools_img2`. The Dockerfile is much easier (smaller) to distribute than the actual image. You can also host images freely on [Docker Hub](https://hub.docker.com).
 
-Actually the best way to build/share/maintain images is the interaction between [Docker Hub](https://hub.docker.com) and [github](https://github.com). If you create a [github](https://github.com) repository with your Dockerfile and point to it in [Docker Hub](https://hub.docker.com), `docker` have servers where they will build the image for you. And in this case they will rebuilt it automatically whenever you modify your Dockerfile on [github](https://github.com) (you can change this behavior). Then user can very simply get your images from there, and always have the latest version. 
-https://github.com/IARCbioinfo/samtools_docker
+Actually the best way to build/share/maintain images is the interaction between [Docker Hub](https://hub.docker.com) and [github](https://github.com). If you create a [github](https://github.com) repository with your Dockerfile and point to it in [Docker Hub](https://hub.docker.com), `docker` have servers where they will build the image for you. And in this case they will rebuilt it automatically whenever you modify your Dockerfile on [github](https://github.com) (but you can change this behavior if you don't like it). Then users can very simply get your image from there. For example I put my Dockerfile above in [github](https://github.com) here: https://github.com/IARCbioinfo/samtools_docker. Then I created an `automated build` in [Docker Hub](https://hub.docker.com) here: https://hub.docker.com/r/iarcbioinfo/samtools_docker/. Now users can download the image easily by specifying `iarcbioinfo/samtools_docker` as an image. Now if we redifine our bash function, we have:
+```bash
+$ samtools_docker () { eval "docker run -it --rm -v $PWD:$PWD -w $PWD --entrypoint /bin/bash iarcbioinfo/samtools_docker -c \"samtools $@\""; }
+$ samtools_docker view -H BAM/NA11830.bam
+@HD	VN:1.0	SO:coordinate
+@SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
+```
 
 You can browse [Docker Hub](https://hub.docker.com) and you will see that you can find three different classes of images:
 - Base images, just containing a given Linux distributio (centos, debian, ubuntu etc.)
