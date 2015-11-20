@@ -174,7 +174,7 @@ $ samtools_docker view -H BAM/NA11830.bam
 @SQ	SN:1	LN:249250621	M5:1b22b98cdeb4a9304cb5d48026a85128	UR:ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz	AS:NCBI37	SP:Human
 ```
 
-And voilà! You can save your image using `docker save 'samtools_img' > samtools_img.tar` and distribute it (check software licences...). You can also host it freely on [Docker Hub](https://hub.docker.com). You can also make the process automatic by using a [Dockerfile](http://docs.docker.com/engine/reference/builder/). In our case it looks like:
+And voilà! You can save your image using `docker save 'samtools_img' > samtools_img.tar` and distribute it (check software licences...). But actually this is not the easiest way to share images. You can make the build process automatic by using a [Dockerfile](http://docs.docker.com/engine/reference/builder/). In our case it looks like:
 ```
 FROM ubuntu
 MAINTAINER Matthieu Foll <follm@iarc.fr>
@@ -182,7 +182,12 @@ RUN apt-get update -y && \
     DEBIAN_FRONTEND=noninteractive apt-get install samtools
 ```
 
-If the file is called Dockerfile you simply need to type: `docker build -t samtools_img2 .` to create an image called `samtools_img2`. The Dockerfile is easier to distribute than the actual image. Note that if you host your Dockerfile on [github](https://github.com), [Docker Hub](https://hub.docker.com) can make automatically build it whenever you modify it. You can browse [Docker Hub](https://hub.docker.com) and you will see that you can find three different classes of images:
+If the file is called Dockerfile you simply need to type: `docker build -t samtools_img2 .` to create an image called `samtools_img2`. The Dockerfile is much easier (smaller) to distribute than the actual image. You can also host images freely on [Docker Hub](https://hub.docker.com).
+
+Actually the best way to build/share/maintain images is the interaction between [Docker Hub](https://hub.docker.com) and [github](https://github.com). If you create a [github](https://github.com) repository with your Dockerfile and point to it in [Docker Hub](https://hub.docker.com), `docker` have servers where they will build the image for you. And in this case they will rebuilt it automatically whenever you modify your Dockerfile on [github](https://github.com) (you can change this behavior). Then user can very simply get your images from there, and always have the latest version. 
+https://github.com/IARCbioinfo/samtools_docker
+
+You can browse [Docker Hub](https://hub.docker.com) and you will see that you can find three different classes of images:
 - Base images, just containing a given Linux distributio (centos, debian, ubuntu etc.)
 - Images to distribute a specific software ([R](https://hub.docker.com/_/r-base/) for example)
 - Images bundling several software for a given task ([NGSeasy](https://hub.docker.com/r/compbio/ngseasy-base/) for example)
