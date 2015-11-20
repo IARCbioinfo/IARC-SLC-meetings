@@ -197,6 +197,14 @@ You can browse [Docker Hub](https://hub.docker.com) and you will see that you ca
 - Images to distribute a specific software ([R](https://hub.docker.com/_/r-base/) for example)
 - Images bundling several software for a given task ([NGSeasy](https://hub.docker.com/r/compbio/ngseasy-base/) for example)
 
+A final note, my simplistic `bash` function can actually be replaced with a more advanced tool called [`oswitch`](https://github.com/wurmlab/oswitch). With `oswitch` you have:
+- Current working directory is maintained
+- User name, uid and gid are maintained
+- Login shell (bash/zsh/fish) is maintained
+- Home directory is maintained (thus all .dotfiles and config files are maintained).
+- read/write permissions are maintained
+- Paths are maintained whenever possible. Thus volumes (external drives, NAS, USB) mounted on the host are available in the container at the same path.
+
 ## Nextflow
 
 Install [nextflow](http://www.nextflow.io/) (you will need [java](https://java.com/download/) JRE if you don't already have it):
